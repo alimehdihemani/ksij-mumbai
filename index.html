@@ -122,6 +122,8 @@
   }
   .gate__second h2 { font-size: var(--sc-t-2xl); line-height: 1.05; letter-spacing: var(--sc-track-snug); max-width: 18ch; margin: 0; text-shadow: 0 2px 24px rgba(6,14,11,0.7); }
   .gate__second .actions { display: flex; gap: 0.75rem; flex-wrap: wrap; }
+  .gate__folio-scrim { background: linear-gradient(90deg, rgba(8,18,14,0.82) 0%, rgba(8,18,14,0.55) 9rem, rgba(8,18,14,0) 16rem); pointer-events: none; }
+  @media (max-width: 960px) { .gate__folio-scrim { display: none; } }
   .gate__scrim { background: linear-gradient(0deg, rgba(8,18,14,0.82) 0%, rgba(8,18,14,0) 42%); opacity: var(--g-second, 0); }
   .gate__actions { margin-top: 1.8rem; display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap; }
 
@@ -450,6 +452,7 @@
       </div>
       <div class="gate__plane gate__arch" aria-hidden="true"><img src="assets/img/arch.webp" alt="" width="1344" height="752"></div>
       <div class="gate__plane gate__dust" aria-hidden="true"><canvas id="dust"></canvas></div>
+      <div class="gate__plane gate__folio-scrim" aria-hidden="true"></div>
       <div class="gate__plane gate__scrim" aria-hidden="true"></div>
       <div class="gate__second">
         <h2 class="sc-display">Next up: the KSIJ AI Hackathon, Sunday 4 October.</h2>
