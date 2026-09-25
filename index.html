@@ -282,7 +282,7 @@
   .home { padding-bottom: 3rem; overflow: hidden; }
   .home__arch { position: relative; max-width: 46rem; margin: 0 auto; text-align: center; padding: clamp(6rem, 14vw, 11rem) clamp(1.5rem, 5vw, 4rem) clamp(3rem, 6vw, 5rem); }
   .home__arch svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
-  .home__arch path { fill: none; stroke: var(--sc-accent); stroke-width: 1.5; vector-effect: non-scaling-stroke; }
+  .home__arch path { fill: none; stroke: var(--sc-accent); stroke-width: 1.5; stroke-linecap: round; }
   .home__arch h2 { font-size: var(--sc-t-3xl); line-height: 1; letter-spacing: var(--sc-track-tight); margin: 0; }
   .home__arch address { font-style: normal; margin-top: 1.2rem; color: var(--sc-ink-soft); line-height: 1.6; font-size: 1.05rem; }
   .home__arch .actions { margin-top: 2rem; display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap; }
@@ -678,8 +678,9 @@
   <!-- VISIT · the arch returns as a line -->
   <section class="chapter home ground-forest" id="visit" data-sc-act="flow" data-chapter="visit" data-ground="forest">
     <div class="home__arch">
-      <svg viewBox="0 0 400 300" preserveAspectRatio="none" aria-hidden="true">
-        <path id="homeArch" pathLength="1" d="M8 300 V120 C8 70 120 40 200 2 C280 40 392 70 392 120 V300"/>
+      <svg class="home__arch-svg" aria-hidden="true">
+        <path class="home-arch" pathLength="1"/>
+        <path class="home-arch" pathLength="1"/>
       </svg>
       <div data-sc-in data-sc-stagger="80">
         <div class="label">Come home</div>
@@ -864,12 +865,29 @@
   }
 
   /* ---------------- Home arch line ---------------- */
-  var home = document.getElementById('visit'), arch = document.getElementById('homeArch');
-  arch.style.strokeDasharray = '1 1';
+  var homeBox = document.querySelector('.home__arch'), arches = document.querySelectorAll('.home-arch'), archMax = 0;
+  arches.forEach(function (a) { a.style.strokeDasharray = '1 1'; a.style.strokeDashoffset = reduce ? 0 : 1; });
+  // Built at the box's real pixel size, so the arch is never stretched and the
+  // dash maths (pathLength = 1) holds exactly.
+  function buildArch() {
+    var w = homeBox.clientWidth, h = homeBox.clientHeight, svg = homeBox.querySelector('svg');
+    svg.setAttribute('viewBox', '0 0 ' + w + ' ' + h);
+    var x0 = 2, x1 = w - 2, mid = w / 2, top = 2, spring = Math.min(h * 0.42, w * 0.5), base = h;
+    arches[0].setAttribute('d', 'M' + x0 + ' ' + base + ' V' + spring + ' C' + x0 + ' ' + (spring * 0.55) + ' ' + (w * 0.3) + ' ' + (spring * 0.3) + ' ' + mid + ' ' + top);
+    arches[1].setAttribute('d', 'M' + x1 + ' ' + base + ' V' + spring + ' C' + x1 + ' ' + (spring * 0.55) + ' ' + (w * 0.7) + ' ' + (spring * 0.3) + ' ' + mid + ' ' + top);
+  }
+  buildArch(); addEventListener('resize', buildArch, { passive: true });
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(buildArch);
   function homeFrame() {
-    var r = home.getBoundingClientRect();
-    var p = clamp01((vh - r.top) / (vh * 0.9));
-    arch.style.strokeDashoffset = reduce ? 0 : (1 - smooth(0.1, 0.95, p)).toFixed(3);
+    if (reduce) return;
+    var r = homeBox.getBoundingClientRect();
+    // Both sides rise from their bases and meet at the apex. Complete while the
+    // arch is still well inside the viewport, and never undraw once finished.
+    var p = clamp01((vh * 0.92 - r.top) / (r.height * 0.75));
+    if (p <= archMax && archMax >= 1) return;
+    archMax = Math.max(archMax, p);
+    var off = (1 - smooth(0, 1, archMax)).toFixed(3);
+    arches.forEach(function (a) { a.style.strokeDashoffset = off; });
   }
 
   /* ---------------- Folio: which chapter are we in ---------------- */
